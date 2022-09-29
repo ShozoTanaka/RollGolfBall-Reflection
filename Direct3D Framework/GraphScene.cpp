@@ -253,7 +253,6 @@ void GraphScene::DrawInfo()
 	swprintf(stringBuffer, sizeof(stringBuffer) / sizeof(wchar_t), L"Distance to Intersection: (%6.1f )",
 		m_golfBall->GetDistanceToIntersection());
 		spriteString2D.AddString(stringBuffer, DirectX::SimpleMath::Vector2(0.0f, 140.0f));
-
 	// すべての情報を描画する
 	spriteString2D.Render();
 }
@@ -347,8 +346,7 @@ void GraphScene::DrawGrid(
 
 	for (size_t index = 0; index <= xdivs; ++index)
 	{
-		float percent = float(index) / float(xdivs);
-		percent = (percent * 2.0f) - 1.0f;
+		float percent = ((float(index) / float(xdivs)) * 2.0f) - 1.0f;
 		// スケールを計算する
 		DirectX::XMVECTOR scale = DirectX::XMVectorScale(xAxis, percent);
 		scale = DirectX::XMVectorAdd(scale, origin);
@@ -362,8 +360,7 @@ void GraphScene::DrawGrid(
 
 	for (size_t index = 0; index <= ydivs; index++)
 	{
-		float percent = float(index) / float(ydivs);
-		percent = (percent * 2.0f) - 1.0f;
+		float percent = ((float(index) / float(ydivs)) * 2.0f) - 1.0f;
 		// スケールを計算する
 		DirectX::XMVECTOR scale = DirectX::XMVectorScale(yAxis, percent);
 		scale = DirectX::XMVectorAdd(scale, origin);

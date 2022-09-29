@@ -151,31 +151,26 @@ bool GolfBall::DetectCollisionToWall()
 		Vector3ToVector2(GraphScene::WALL[3]))
 	)
 	{
-		// 光線を宣言する
-		Ray ray(m_position, normalVelocity);
-		// 平面を宣言する
-		Plane plane(wallNormalVector);
-		// 光線と平面の交差点を計算する
-		IntersectRayPlane(ray, plane, &m_intersectionPoint);
-		// 光線の方向を取得する
-		Vector3 direction = ray.direction;
-		// 光線と平面が交差しているかどうかを調べ、交差している場合は交差点までの距離を計算する
-		if (ray.Intersects(GraphScene::WALL[0], GraphScene::WALL[1], GraphScene::WALL[3], m_distanceToIntersection))
+		// 交差点を計算する
+		Vector2 intersectionPosition = IntersectPointLines2D(Vector3ToVector2(m_position),
+			Vector3ToVector2(m_position + (-wallNormalVector * m_radius) * INTERSECT_JUDGEMENT_DISTANCE),
+			Vector3ToVector2(GraphScene::WALL[0]),
+			Vector3ToVector2(GraphScene::WALL[3]));
+		// 交差点までの距離を計算する
+		m_distanceToIntersection = (Vector3ToVector2(m_position) - intersectionPosition).Length();
+		// 交差点に到着するまでの時間を計算する
+		float timeToIntersection = (m_distanceToIntersection - m_radius) / m_velocity.Length() ;
+		// 交差点に到着するまでの時間が指定時間より小さい場合
+		if(timeToIntersection < 1.0f)
 		{
-			// 交差点に到着するまでの時間を計算する
-			float timeToIntersection = (m_distanceToIntersection - m_radius) / m_velocity.Length() ;
-			// 交差点に到着するまでの時間が0より小さい場合
-			if(timeToIntersection < 1.0f)
+			// ゴルフボールと壁が向き合っている場合
+			if (normalVelocity.Dot(wallNormalVector) < 0)
 			{
-				// ゴルフボールと壁が向き合っている場合
-				if (normalVelocity.Dot(wallNormalVector) < 0)
-				{
-					// ゴルフボールを反射させる
-					m_velocity = Vector3::Reflect(m_velocity, wallNormalVector);
-				}
-				// 交差している
-				return true;
+				// ゴルフボールを反射させる
+				m_velocity = Vector3::Reflect(m_velocity, wallNormalVector);
 			}
+			// 交差している
+			return true;
 		}
 	}
 	// 交差していない

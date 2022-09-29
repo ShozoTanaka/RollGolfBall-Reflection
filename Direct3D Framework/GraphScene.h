@@ -5,14 +5,14 @@
 #include "ArcBall.h"
 #include "Game.h"
 #include "GolfBall.h"
-
+                                        
 class Game;
 
 class GraphScene
-{
+{                                   
 public:
 	// 開始位置
-	const DirectX::SimpleMath::Vector3 START_POSITION = DirectX::SimpleMath::Vector3(-80.0f, 0.0, 0.0f);
+	const DirectX::SimpleMath::Vector3 START_POSITION = DirectX::SimpleMath::Vector3(0.0f, 0.0, 0.0f);
 
 public:
 	// 壁(右下, 右上, 左上, 左下)

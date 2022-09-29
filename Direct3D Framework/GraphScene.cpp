@@ -50,7 +50,7 @@ GraphScene::GraphScene(Game* game)
 	m_golfBallModel(nullptr),					// ゴルフボールモデル
 	m_golfBall(nullptr),								// ゴルフボール
 	m_rollAngle(0.0f),								// 角度
-	m_rollForce(1.0f)									// 転がす力
+	m_rollForce(30.0f)								// 転がす力
 {
 	// DirectX Graphicsクラスのインスタンスを取得する
 	m_graphics = Graphics::GetInstance();
@@ -175,7 +175,7 @@ void GraphScene::Finalize()
 void GraphScene::DrawBall()
 {
 	// ゴルフボールの将来の位置を描画する
-	 m_golfBall->DrawFuturePosition(10);
+	 m_golfBall->DrawFuturePosition(1.0f);
 	// ゴルフボールを描画する
 	m_golfBall->Render();
 }
@@ -201,7 +201,7 @@ void GraphScene::DrawRollDirection()
 		// 描画プリミティブを開始する
 		m_graphics->DrawPrimitiveBegin(m_graphics->GetViewMatrix(), m_graphics->GetProjectionMatrix());
 		// ゴルフボールを転がす方向を表すベクトルを描画する
-		m_graphics->DrawVector(m_golfBall->GetPosition(), angle * m_rollForce * 10.0f, DirectX::Colors::White);
+		m_graphics->DrawVector(m_golfBall->GetPosition(), angle * m_rollForce, DirectX::Colors::White);
 		// 描画プリミティブを終了する
 		m_graphics->DrawPrimitiveEnd();
 	}

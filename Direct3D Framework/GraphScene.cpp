@@ -175,7 +175,7 @@ void GraphScene::Finalize()
 void GraphScene::DrawBall()
 {
 	// ゴルフボールの将来の位置を描画する
-	 m_golfBall->DrawFuturePosition(1.0f);
+	 m_golfBall->DrawFuturePosition(0.5f);
 	// ゴルフボールを描画する
 	m_golfBall->Render();
 }
@@ -186,22 +186,22 @@ void GraphScene::DrawRollDirection()
 	using namespace DirectX::SimpleMath;
 
 	// ゴルフボールが停止している場合
-	if (m_golfBall->GetVelocity().Length() < 0.01f )
+	if (m_golfBall->GetVelocity().Length() < 0.05f )
 	{
 		// ゴルフボールの初期位置を設定する
 		m_golfBall->SetPosition(START_POSITION);
-		// 速度を初期化する
+		//  ゴルフボールの速度を初期化する
 		m_golfBall->SetVelocity(Vector3::Zero);
 		// ゴルフボールの方向を設定する
-		Vector3 angle(1.0f, 0.0f, 0.0f);
-		// 回転行列を生成する
+		Vector3 direction(1.0f, 0.0f, 0.0f);
+		// Y軸回転を行う回転行列を生成する
 		Matrix rotationMatrix = Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rollAngle));
 		//  ゴルフボールを転がす方向を計算する
-		angle = Vector3::Transform(angle, rotationMatrix);
+		direction = Vector3::Transform(direction, rotationMatrix);
 		// 描画プリミティブを開始する
 		m_graphics->DrawPrimitiveBegin(m_graphics->GetViewMatrix(), m_graphics->GetProjectionMatrix());
 		// ゴルフボールを転がす方向を表すベクトルを描画する
-		m_graphics->DrawVector(m_golfBall->GetPosition(), angle * m_rollForce, DirectX::Colors::White);
+		m_graphics->DrawVector(m_golfBall->GetPosition(), direction * m_rollForce, DirectX::Colors::White);
 		// 描画プリミティブを終了する
 		m_graphics->DrawPrimitiveEnd();
 	}

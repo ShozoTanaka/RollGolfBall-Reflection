@@ -120,7 +120,7 @@ void GolfBall::Finalize()
 }
 
 // ゴルフボールを転がす
-void GolfBall::Roll(const DirectX::SimpleMath::Vector3& direction, const float& force)
+void GolfBall::Roll(const DirectX::SimpleMath::Vector3& direction, const float& impulsiveForce)
 {
 	using namespace DirectX::SimpleMath;
 
@@ -129,7 +129,7 @@ void GolfBall::Roll(const DirectX::SimpleMath::Vector3& direction, const float& 
 	// 正規化する
 	rollDirection.Normalize();
 	// 運動方程式から速度を計算する
-	m_velocity = rollDirection * force * 0.1f / m_mass;
+	m_velocity = rollDirection * impulsiveForce * 0.1f / m_mass;
 }
 
 // ゴルフボールと壁の衝突判定をおこなう

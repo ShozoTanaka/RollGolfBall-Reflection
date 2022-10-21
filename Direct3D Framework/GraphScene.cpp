@@ -100,17 +100,20 @@ void GraphScene::Update(const DX::StepTimer& timer)
 	// 視点と注視点の距離を計算する
 	m_distance = eyePosition.Length();
 
-	// [←][→]キーでゴルフボールの転がす方向を変える
+	// [Shift]+[←]キーでゴルフボールの転がす方向を変える
 	if (m_keyboardState.Left && m_keyboardState.LeftControl)
-		m_rollAngle += 1.0f;
-	if (m_keyboardState.Right && m_keyboardState.LeftControl)
 		m_rollAngle -= 1.0f;
+	// [Shift]+[→]キーでゴルフボールの転がす方向を変える
+	if (m_keyboardState.Right && m_keyboardState.LeftControl)
+		m_rollAngle += 1.0f;
 
-	// [↑][↓]キーでゴルフボールの転がす力を変える
-	if (m_keyboardState.Down && m_keyboardState.LeftControl)
+	// [Shift]+[↑]キーでゴルフボールの転がす力を変える
+	if (m_keyboardState.Up && m_keyboardState.LeftShift)
 		m_rollForce += 0.1f;
-	if (m_keyboardState.Up && m_keyboardState.LeftControl)
+	// [Shift][↓]キーでゴルフボールの転がす力を変える
+	if (m_keyboardState.Down && m_keyboardState.LeftShift)
 		m_rollForce -= 0.1f;
+
 
 	// [Space]キーでゴルフボールを転がす
 	if (m_game->GetKeyboardTracker().IsKeyPressed(DirectX::Keyboard::Space))

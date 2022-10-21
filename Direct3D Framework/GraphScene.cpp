@@ -49,7 +49,7 @@ GraphScene::GraphScene(Game* game)
 	m_scale(1.0f),										// スケール
 	m_golfBallModel(nullptr),					// ゴルフボールモデル
 	m_golfBall(nullptr),								// ゴルフボール
-	m_rollAngle(0.0f),								// 角度
+	m_rollAngleRL(0.0f),								// 角度
 	m_rollForce(30.0f)								// 転がす力
 {
 	// DirectX Graphicsクラスのインスタンスを取得する
@@ -100,12 +100,12 @@ void GraphScene::Update(const DX::StepTimer& timer)
 	// 視点と注視点の距離を計算する
 	m_distance = eyePosition.Length();
 
-	// [Shift]+[←]キーでゴルフボールの転がす方向を変える
+	// [Ctrl]+[←]キーでゴルフボールの転がす方向を変える
 	if (m_keyboardState.Left && m_keyboardState.LeftControl)
-		m_rollAngle -= 1.0f;
-	// [Shift]+[→]キーでゴルフボールの転がす方向を変える
+		m_rollAngleRL -= 1.0f;
+	// [Ctrl]+[→]キーでゴルフボールの転がす方向を変える
 	if (m_keyboardState.Right && m_keyboardState.LeftControl)
-		m_rollAngle += 1.0f;
+		m_rollAngleRL += 1.0f;
 
 	// [Shift]+[↑]キーでゴルフボールの転がす力を変える
 	if (m_keyboardState.Up && m_keyboardState.LeftShift)
@@ -113,7 +113,6 @@ void GraphScene::Update(const DX::StepTimer& timer)
 	// [Shift][↓]キーでゴルフボールの転がす力を変える
 	if (m_keyboardState.Down && m_keyboardState.LeftShift)
 		m_rollForce -= 0.1f;
-
 
 	// [Space]キーでゴルフボールを転がす
 	if (m_game->GetKeyboardTracker().IsKeyPressed(DirectX::Keyboard::Space))
@@ -125,7 +124,7 @@ void GraphScene::Update(const DX::StepTimer& timer)
 		// ゴルフを転がす方向を設定する
 		Vector3 direction(1.0f, 0.0f, 0.0f);
 		// 回転行列を生成する
-		Matrix rotationMatrix = Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rollAngle));
+		Matrix rotationMatrix = Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rollAngleRL));
 		// 回転後の向きを計算する
 		direction = Vector3::Transform(direction, rotationMatrix);
 		// ゴルフボールを初期化する
@@ -198,7 +197,7 @@ void GraphScene::DrawRollDirection()
 		// ゴルフボールの方向を設定する
 		Vector3 direction(1.0f, 0.0f, 0.0f);
 		// Y軸回転を行う回転行列を生成する
-		Matrix rotationMatrix = Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rollAngle));
+		Matrix rotationMatrix = Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rollAngleRL));
 		//  ゴルフボールを転がす方向を計算する
 		direction = Vector3::Transform(direction, rotationMatrix);
 		// 描画プリミティブを開始する

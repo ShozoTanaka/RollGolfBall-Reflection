@@ -133,7 +133,7 @@ private:
 	std::unique_ptr<GolfBall> m_golfBall;
 
 	// ロールアングル
-	float m_rollAngle;
+	float m_rollAngleRL;
 	// ロールフォース
 	float m_rollForce;
 };

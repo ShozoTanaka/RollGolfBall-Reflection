@@ -7,6 +7,10 @@ class GraphScene;
 
 // 摩擦係数
 const float GolfBall::FRICTION = -0.4f;
+// 質量 kg
+const float GolfBall::MASS = 0.04593f;
+// 半径 m
+const float GolfBall::RADIUS = 0.02133f;
 // 最大移動速度
 const float GolfBall::MAX_SPEED = 3.0f;
 // 交差判定距離
@@ -23,8 +27,8 @@ GolfBall::GolfBall(DirectX::Model* model)
 	m_heading(DirectX::SimpleMath::Vector3::Zero),					// 向き
 	m_intersectionPoint(DirectX::SimpleMath::Vector3::Zero),	// 光線と平面の交差点
 	m_distanceToIntersection(0.0f),												// 交差点までの距離
-	m_mass(0.04593f),																	// 質量
-	m_radius(0.02133f)																	// 半径
+	m_mass(MASS),																		// 質量
+	m_radius(RADIUS)																	// 半径
 {
 	// DirectXグラフィックスを取得する
 	m_graphics = Graphics::GetInstance();
@@ -40,8 +44,8 @@ GolfBall::GolfBall(GraphScene* graphScene)
 	m_heading(DirectX::SimpleMath::Vector3::Zero),					// 向き
 	m_intersectionPoint(DirectX::SimpleMath::Vector3::Zero),	// 光線と平面の交差点
 	m_distanceToIntersection(0.0f),												// 交差点までの距離
-	m_mass(0.04593f),																	// 質量
-	m_radius(0.02133f)																	// 半径
+	m_mass(0.04593f),																	// 質量:45.93g
+	m_radius(0.02133f)																	// 半径:2.13cm
 {
 	// DirectXグラフィックスを取得する
 	m_graphics = Graphics::GetInstance();

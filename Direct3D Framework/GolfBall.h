@@ -52,6 +52,10 @@ public:
 public:
 	// –€CŒW”
 	static const float FRICTION;
+	// ¿—Ê
+	static const float MASS;
+	// ”¼Œa
+	static const float RADIUS;
 	// Å‘åˆÚ“®‘¬“x
 	static const float MAX_SPEED;
 	// Œğ·”»’è‹——£

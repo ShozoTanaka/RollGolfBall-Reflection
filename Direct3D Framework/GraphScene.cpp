@@ -14,6 +14,10 @@
 #include "Common.h"
 #include "Geometry.h"
 
+// 開始位置
+const DirectX::SimpleMath::Vector3 GraphScene::HOME_POSITION = DirectX::SimpleMath::Vector3(0.0f, 0.0, 0.0f);
+
+
 // 壁(右下, 右上, 左上, 左下)
 const DirectX::SimpleMath::Vector3 GraphScene::WALL[4] =
 {
@@ -49,8 +53,8 @@ GraphScene::GraphScene(Game* game)
 	m_scale(1.0f),										// スケール
 	m_golfBallModel(nullptr),					// ゴルフボールモデル
 	m_golfBall(nullptr),								// ゴルフボール
-	m_rollAngleRL(0.0f),								// 角度
-	m_rollForce(30.0f)								// 転がす力
+	m_rollAngleRL(0.0f),							// 角度
+	m_rollForce(2.3f)									// 転がす力(初期速度 5.0 m/s)
 {
 	// DirectX Graphicsクラスのインスタンスを取得する
 	m_graphics = Graphics::GetInstance();
@@ -118,15 +122,13 @@ void GraphScene::Update(const DX::StepTimer& timer)
 	if (m_game->GetKeyboardTracker().IsKeyPressed(DirectX::Keyboard::Space))
 	{
 		// ゴルフボールの初期位置を設定する
-		m_golfBall->SetPosition(START_POSITION);
+		m_golfBall->SetPosition(GraphScene::HOME_POSITION);
 		// 速度を初期化する
 		m_golfBall->SetVelocity(Vector3::Zero);
-		// ゴルフを転がす方向を設定する
-		Vector3 direction(1.0f, 0.0f, 0.0f);
-		// 回転行列を生成する
-		Matrix rotationMatrix = Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rollAngleRL));
-		// 回転後の向きを計算する
-		direction = Vector3::Transform(direction, rotationMatrix);
+		// 加速度を初期化する
+		m_golfBall->SetAcceralation(Vector3(GolfBall::GRAVITATION_ACCELERATION, 0.0f, GolfBall::GRAVITATION_ACCELERATION));
+		// 方向を計算する
+		Vector3 direction = CalculateDirection();
 		// ゴルフボールを初期化する
 		m_golfBall->Initialize();
 		// ゴルフボールを転がす
@@ -182,6 +184,20 @@ void GraphScene::DrawBall()
 	m_golfBall->Render();
 }
 
+// ゴルフボールを転がす方向を計算する
+DirectX::SimpleMath::Vector3 GraphScene::CalculateDirection()
+{
+	using namespace DirectX::SimpleMath;
+	// ゴルフを転がす方向を設定する
+	Vector3 direction(1.0f, 0.0f, 0.0f);
+	// 回転行列を生成する
+	Matrix rotationMatrix = Matrix::CreateRotationY(DirectX::XMConvertToRadians(m_rollAngleRL));
+	// 回転後の向きを計算する
+	direction = Vector3::Transform(direction, rotationMatrix);
+	// 方向を返す
+	return direction;
+}
+
 // ゴルフボールを転がす方向を描画する
 void GraphScene::DrawRollDirection()
 {
@@ -191,7 +207,7 @@ void GraphScene::DrawRollDirection()
 	if (m_golfBall->GetVelocity().Length() < 0.05f )
 	{
 		// ゴルフボールの初期位置を設定する
-		m_golfBall->SetPosition(START_POSITION);
+		m_golfBall->SetPosition(GraphScene::HOME_POSITION);
 		//  ゴルフボールの速度を初期化する
 		m_golfBall->SetVelocity(Vector3::Zero);
 		// ゴルフボールの方向を設定する
@@ -255,6 +271,14 @@ void GraphScene::DrawInfo()
 	swprintf(stringBuffer, sizeof(stringBuffer) / sizeof(wchar_t), L"Distance to Intersection: (%6.1f )",
 		m_golfBall->GetDistanceToIntersection());
 		spriteString2D.AddString(stringBuffer, DirectX::SimpleMath::Vector2(0.0f, 140.0f));
+	// ゴルフボールを転がす力を書式化する
+	swprintf(stringBuffer, sizeof(stringBuffer) / sizeof(wchar_t), L"GolfBall force: %6.1f N", m_rollForce);
+		spriteString2D.AddString(stringBuffer, DirectX::SimpleMath::Vector2(0.0f, 168.0f));
+	// ゴルフボールを転がす初速を計算する
+	DirectX::SimpleMath::Vector3 initialVelocity = (CalculateDirection() * m_rollForce) * 0.1f / GolfBall::MASS;
+	// ゴルフボールを転がす初速を書式化する
+		swprintf(stringBuffer, sizeof(stringBuffer) / sizeof(wchar_t), L"GolfBall initial velocity: %6.1f m/s", initialVelocity.Length());
+		spriteString2D.AddString(stringBuffer, DirectX::SimpleMath::Vector2(0.0f, 196.0f));
 	// すべての情報を描画する
 	spriteString2D.Render();
 }

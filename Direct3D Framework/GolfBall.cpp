@@ -4,9 +4,10 @@
 #include "GraphScene.h"
 
 class GraphScene;
-
+// 重力加速度 m/s^2
+const float GolfBall::GRAVITATION_ACCELERATION = -9.80665f;
 // 摩擦係数
-const float GolfBall::FRICTION = -0.4f;
+const float GolfBall::FRICTION_COEFFICIENT = 0.2f;
 // 質量 kg
 const float GolfBall::MASS = 0.04593f;
 // 半径 m
@@ -17,35 +18,20 @@ const float GolfBall::MAX_SPEED = 3.0f;
 const float GolfBall::INTERSECT_JUDGEMENT_DISTANCE = 40.0f;
 
 // コンストラクタ
-GolfBall::GolfBall(DirectX::Model* model)
-	:
-	m_graphScene(nullptr),															// グラフシーン
-	m_model(model),																	// モデル
-	m_quaternion{},																		// クォータニオン
-	m_position(DirectX::SimpleMath::Vector3::Zero),					// 位置
-	m_velocity(DirectX::SimpleMath::Vector3::Zero),					// 速度
-	m_heading(DirectX::SimpleMath::Vector3::Zero),					// 向き
-	m_intersectionPoint(DirectX::SimpleMath::Vector3::Zero),	// 光線と平面の交差点
-	m_distanceToIntersection(0.0f),												// 交差点までの距離
-	m_mass(MASS),																		// 質量
-	m_radius(RADIUS)																	// 半径
-{
-	// DirectXグラフィックスを取得する
-	m_graphics = Graphics::GetInstance();
-}
-
-// コンストラクタ
 GolfBall::GolfBall(GraphScene* graphScene)
 	:
 	m_graphScene(graphScene),													// グラフシーン
 	m_quaternion{},																		// クォータニオン
 	m_position(DirectX::SimpleMath::Vector3::Zero),					// 位置
 	m_velocity(DirectX::SimpleMath::Vector3::Zero),					// 速度
+	m_acceralation(DirectX::SimpleMath::Vector3::Zero),			// 加速度
 	m_heading(DirectX::SimpleMath::Vector3::Zero),					// 向き
 	m_intersectionPoint(DirectX::SimpleMath::Vector3::Zero),	// 光線と平面の交差点
 	m_distanceToIntersection(0.0f),												// 交差点までの距離
-	m_mass(0.04593f),																	// 質量:45.93g
-	m_radius(0.02133f)																	// 半径:2.13cm
+	m_totalSeconds(0.0f),																// 合計秒数
+	m_initialVelocity(0.0f),																// 初期速度
+	m_mass(MASS),																		// 質量:45.93g
+	m_radius(RADIUS)																	// 半径:2.13cm
 {
 	// DirectXグラフィックスを取得する
 	m_graphics = Graphics::GetInstance();
@@ -61,6 +47,13 @@ GolfBall::~GolfBall()
 // 初期化する
 void GolfBall::Initialize()
 {
+	using namespace DirectX::SimpleMath;
+	// 速度を初期化する
+	m_velocity = Vector3::Zero;
+	// 加速度を初期化する
+	// m_acceralation = GRAVITATION_ACCELERATION;
+	// 総秒数を初期化する
+	m_totalSeconds = 0.0f;
 	//  光線と平面の交差点を初期化する
 	m_intersectionPoint = DirectX::SimpleMath::Vector3::Zero;
 	// 交差点までの距離を初期化する
@@ -73,25 +66,47 @@ void GolfBall::Update(const float& elapsedTime)
 	using namespace DirectX::SimpleMath;
 	UNREFERENCED_PARAMETER(elapsedTime);
 
-	// 摩擦による減速の大きさより速度が速ければ減速させる
-	if (m_velocity.Length() > GolfBall::FRICTION)
-	{
-		// 向きを設定する
-		m_heading = m_velocity;
-		// 摩擦により減速する
-		m_velocity += m_heading * GolfBall::FRICTION * elapsedTime;
+	// 重力加速度が設定されていない場合は更新しない
+	if (m_acceralation.x == 0.0f && m_acceralation.z == 0.0f)
+		return;
+	wchar_t buffer[128];
+	//swprintf(buffer, L"time: %6.4f\t position: (%6.3f, %6.3f, %6.3f)  velocity: (%6.3f, %6.3f, %6.3f)\n",
+	swprintf(buffer, L"%6.4f\t %6.3f\t %6.3f\t %6.3f\t %6.3f\t %6.3f\t %6.3f\n",
+		m_totalSeconds,
+		m_position.x + abs(GraphScene::HOME_POSITION.x),
+		m_position.y,
+		m_position.z,
+		m_velocity.x,
+		m_velocity.y,
+		m_velocity.z
+	);
+	OutputDebugString(buffer);
 
-		// 位置を更新する
-		m_position += m_velocity * elapsedTime;
-		// ゴルフボールの回転軸を設定する
-		Vector3 axis = Vector3(m_heading.x, 0.0f, -m_heading.y);
-		// ゴルフボールが移動している場合
-		if (m_velocity.Length())
-		{
-			// クォータニオンを生成する
-			m_quaternion *= Quaternion::CreateFromAxisAngle(axis, m_velocity.Length() / m_radius);
-		}
+	// 総秒数を計算する
+	m_totalSeconds += elapsedTime;
+	
+	// 速度を計算する
+	//m_velocity += m_velocity * GolfBall::FRICTION_COEFFICIENT * m_acceralation * elapsedTime;
+	m_velocity += 0.25f * m_velocity * GolfBall::FRICTION_COEFFICIENT * m_acceralation * elapsedTime;
+	// 向きを設定する
+	m_heading = m_velocity;
+	// 位置を更新する
+	m_position += m_velocity * elapsedTime;
+
+	if (m_velocity.Length() < 0.01f)
+	{
+		m_acceralation = Vector3::Zero;
+		Initialize();
 	}
+	// ゴルフボールの回転軸を設定する
+	Vector3 axis = Vector3(m_heading.x, 0.0f, -m_heading.z);
+	// ゴルフボールが移動している場合
+	if (m_velocity.Length())
+	{
+		// クォータニオンを生成する
+		m_quaternion *= Quaternion::CreateFromAxisAngle(axis, m_velocity.Length() / m_radius);
+	}
+	
 	// ゴルフボールと壁の衝突判定をおこなう
 	DetectCollisionToWall();
 }
@@ -104,7 +119,7 @@ void GolfBall::Render()
 	// スケール行列を生成する
 	Matrix scaleMatrix = Matrix::CreateScale(0.5f, 0.5f, 0.5f);
 	// 移動行列を生成する
-	Matrix translationMatrix = Matrix::CreateTranslation(m_position.x, m_position.y + m_radius, m_position.z);
+	Matrix translationMatrix = Matrix::CreateTranslation(m_position.x, m_position.y + m_radius * 44.0f, m_position.z);
 	// 回転クォータニオンから回転行列を生成する
 	Matrix rotationMatrix = Matrix::CreateFromQuaternion(m_quaternion);
 	// ワールド行列を計算する
@@ -133,7 +148,9 @@ void GolfBall::Roll(const DirectX::SimpleMath::Vector3& direction, const float& 
 	// 正規化する
 	rollDirection.Normalize();
 	// 運動方程式から速度を計算する
-	m_velocity = rollDirection * impulsiveForce * 0.1f / m_mass;
+	m_velocity = (rollDirection * impulsiveForce) * 0.1f / m_mass;
+	// 初速度を計算する
+	m_initialVelocity = m_velocity.Length();
 }
 
 // ゴルフボールと壁の衝突判定をおこなう
@@ -195,7 +212,7 @@ DirectX::SimpleMath::Vector3 GolfBall::PredictFuturePosition(const float& time) 
 	// 速度を正規化する
 	velocity.Normalize();
 	// 減速した分の移動距離を計算する
-	float distance = 0.5f * GolfBall::FRICTION * time * time;
+	float distance = 0.5f * GolfBall::FRICTION_COEFFICIENT * time * time;
 	// 位置を返す
 	return m_position + initialVelocity + velocity * distance;
 }
@@ -220,7 +237,7 @@ float GolfBall::CalculateTimeToMoveDistance(const DirectX::SimpleMath::Vector3& 
 	// ゴルフボールまでの距離を計算する
 	float distanceToGolfBall = (from - to).Length();
 	// ゴルフボールの位置に到達した時の速度を計算する
-	float velocity = sqrtf(initialVelocity * initialVelocity + 2.0f * distanceToGolfBall * GolfBall::FRICTION);
+	float velocity = sqrtf(initialVelocity * initialVelocity + 2.0f * distanceToGolfBall * GolfBall::FRICTION_COEFFICIENT);
 	// ゴルフボールまでの到達時間を返す
-	return (velocity - initialVelocity) / GolfBall::FRICTION;
+	return (velocity - initialVelocity) / GolfBall::FRICTION_COEFFICIENT;
 }

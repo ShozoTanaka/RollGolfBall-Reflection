@@ -12,7 +12,7 @@ class GraphScene
 {                                   
 public:
 	// 開始位置
-	const DirectX::SimpleMath::Vector3 START_POSITION = DirectX::SimpleMath::Vector3(0.0f, 0.0, 0.0f);
+	static const DirectX::SimpleMath::Vector3 HOME_POSITION;
 
 public:
 	// 壁(右下, 右上, 左上, 左下)
@@ -60,6 +60,8 @@ private:
 	void DrawInfo();
 	// ボールを描画する
 	void DrawBall();
+	// ゴルフボールを転がす方向を計算する
+	DirectX::SimpleMath::Vector3 GraphScene::CalculateDirection();
 	// 蹴る方向ベクトルを描画する
 	void DrawRollDirection();
 	// 壁を描画する

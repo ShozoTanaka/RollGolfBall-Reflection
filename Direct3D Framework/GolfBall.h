@@ -17,14 +17,16 @@ public:
 	DirectX::SimpleMath::Vector3 GetVelocity() const { return m_velocity; }
 	// 速度を設定する
 	void SetVelocity(const DirectX::SimpleMath::Vector3& velocity) { m_velocity = velocity; }
+	// 加速度を設定する
+	void SetAcceralation(const DirectX::SimpleMath::Vector3& acceralation) { m_acceralation = acceralation; }
 	// 光線と平面の交差点を取得する
 	DirectX::SimpleMath::Vector3 GetIntersectionPoint() { return m_intersectionPoint; }
 	// 交差点までの距離を取得する
 	float GetDistanceToIntersection() { return m_distanceToIntersection; 	}
+	// 初速度を取得する
+	float GetInitialVelocity() { return m_initialVelocity; }
 
 public:
-	// コンストラクタ
-	GolfBall(DirectX::Model* model);
 	// コンストラクタ
 	GolfBall(GraphScene* graphScene);
 	// デストラクタ
@@ -50,8 +52,10 @@ public:
 	void DrawFuturePosition(const float& time);
 
 public:
+	// 重力加速度
+	static const float GRAVITATION_ACCELERATION;
 	// 摩擦係数
-	static const float FRICTION;
+	static const float FRICTION_COEFFICIENT;
 	// 質量
 	static const float MASS;
 	// 半径
@@ -74,6 +78,10 @@ private:
 	DirectX::SimpleMath::Vector3 m_position;
 	// ゴルフボールの速度
 	DirectX::SimpleMath::Vector3 m_velocity;
+	// 加速度
+	DirectX::SimpleMath::Vector3  m_acceralation;
+	// ゴルフボールの初速度
+	float m_initialVelocity;
 	// ゴルフボールの方向
 	DirectX::SimpleMath::Vector3 m_heading;
 	// ゴルフボールの質量
@@ -84,6 +92,8 @@ private:
 	DirectX::SimpleMath::Vector3 m_intersectionPoint;
 	// 交差点までの距離
 	float m_distanceToIntersection;
+	// 合計秒数
+	float m_totalSeconds;
 };
 
 #endif		// GOLF_BALL_DEFINED

@@ -87,7 +87,7 @@ void GolfBall::Update(const float& elapsedTime)
 	
 	// 速度を計算する
 	//m_velocity += m_velocity * GolfBall::FRICTION_COEFFICIENT * m_acceralation * elapsedTime;
-	m_velocity += 0.25f * m_velocity * GolfBall::FRICTION_COEFFICIENT * m_acceralation * elapsedTime;
+	m_velocity += 0.714f * m_velocity * GolfBall::FRICTION_COEFFICIENT * m_acceralation * elapsedTime;
 	// 向きを設定する
 	m_heading = m_velocity;
 	// 位置を更新する
